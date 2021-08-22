@@ -11,7 +11,7 @@ namespace UnitTest
         
         static void Main(string[] args)
         {
-            string connectionString = "Server=localhost;uid=root;pwd=xxx;port=3306;Database=db_reference;charset=utf8";
+            string connectionString = "Server=localhost;uid=root;pwd=xxx;port=3306;Database=db_efcore;charset=utf8";
             var context = new EntityContext(connectionString);
             /*
             #region Test1 Build Department
