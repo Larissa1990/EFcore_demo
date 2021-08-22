@@ -10,18 +10,15 @@ namespace SchoolManagement
         public int id { get; set; }
         public string name { get; set; }
         public int grade_id { get; set; }
+        public int address_id { get; set; }
 
         [NotMapped]
-        public Grade grade { get; set; }
+        public Address address { get; set; }
+
         [NotMapped]
         public List<Subject> subjects { get; set; }
         [NotMapped]
         public List<Teacher> teachers { get; set; }
-        [NotMapped]
-        public List<StudentTeacher> teacherRelations { get; set; }
-
-        [NotMapped]
-        public List<StudentSubject> subjectRelations { get; set; }
 
     }
     [Table("teacher")]
@@ -31,14 +28,14 @@ namespace SchoolManagement
         public string name { get; set; }
         public int subject_id { get; set; }
         public int depart_id { get; set; }
+        public int address_id { get; set; }
+
         [NotMapped]
-        public Subject subject { get; set; }
+        public Address address { get; set; }
+
         [NotMapped]
         public List<Student> students { get; set; }
-        [NotMapped]
-        public List<StudentTeacher> studentRelations { get; set; }
-        [NotMapped]
-        public Department depart { get; set; }
+
     }
     [Table("stu_tea")]
     public class StudentTeacher
@@ -67,12 +64,10 @@ namespace SchoolManagement
     {
         public int id { get; set; }
         public string name { get; set; }
-        public string address { get; set; }
         public int depart_id { get; set; }
         [NotMapped]
         public List<Student> students { get; set; }
-        [NotMapped]
-        public Department depart { get; set; }
+
     }
     [Table("subject")]
     public class Subject
@@ -84,16 +79,15 @@ namespace SchoolManagement
         public List<Teacher> teachers { get; set; }
         [NotMapped]
         public List<Student> students { get; set; }
-        [NotMapped]
-        public List<StudentSubject> studentRelations { get; set; }
-        [NotMapped]
-        public Department depart { get; set; }
     }
     [Table("depart")]
     public class Department
     {
         public int id { get; set; }
         public string name { get; set; }
+
+        [NotMapped]
+        public List<Address> addresses { get; set; }
         [NotMapped]
         public List<Grade> grades { get; set; }
         [NotMapped]
@@ -101,4 +95,30 @@ namespace SchoolManagement
         [NotMapped]
         public List<Teacher> teachers { get; set; }
     }
+
+    [Table("address")]
+    public class Address
+    {
+        public int id { get; set; }
+        public string country { get; set; }
+        public string city { get; set; }
+        [NotMapped]
+        public List<Department> departs { get; set; }
+        
+    }
+
+    [Table("depart_address")]
+    public class Depart_Address
+    {
+        public int id { get; set; }
+        public int depart_id { get; set; }
+        public int address_id { get; set; }
+
+        [NotMapped]
+        public Department depart { get; set; }
+        [NotMapped]
+        public Address address { get; set; }
+    }
+
+
 }

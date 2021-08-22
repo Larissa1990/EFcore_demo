@@ -14,6 +14,7 @@ namespace SchoolManagement
         private readonly string connectionString;
         public DbSet<Student> students { get; set; }
         public DbSet<Department> departs { get; set; }
+        public DbSet<Teacher> teachers { get; set; }
 
 
         public EntityContext(string connectionString)
@@ -32,60 +33,111 @@ namespace SchoolManagement
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            // students-teachers
+            #region Student Relationships
+            // students-teachers : multi-to-multi
             builder.Entity<Student>()
                 .HasMany(s => s.teachers)
                 .WithMany(t => t.students)
                 .UsingEntity<StudentTeacher>(
                 j => j.HasOne(pt => pt.teacher)
-                .WithMany(t => t.studentRelations)
+                .WithMany()
                 .HasForeignKey(pt => pt.teacher_id),
                 j => j.HasOne(pt => pt.student)
-                .WithMany(t => t.teacherRelations)
+                .WithMany()
                 .HasForeignKey(pt => pt.student_id),
                 j => j.HasKey(t => new { t.student_id, t.teacher_id }));
 
-            // students-grade
-            builder.Entity<Student>()
-                .HasOne(s => s.grade)
-                .WithMany()
-                .HasForeignKey(s => s.grade_id);
-
-            // students-subjects
+            // students-subjects: multi-to-multi
             builder.Entity<Student>()
                 .HasMany(s => s.subjects)
                 .WithMany(su => su.students)
                 .UsingEntity<StudentSubject>(
                 j => j.HasOne(pt => pt.subject)
-                .WithMany(t => t.studentRelations)
+                .WithMany()
                 .HasForeignKey(pt => pt.subject_id),
                 j => j.HasOne(pt => pt.student)
-                .WithMany(t => t.subjectRelations)
+                .WithMany()
                 .HasForeignKey(pt => pt.student_id),
                 j => j.HasKey(t => new { t.student_id, t.subject_id }));
 
-            builder.Entity<Teacher>()
-                .HasOne(t => t.subject)
+            // student-address: multi-to-one
+            builder.Entity<Student>()
+                .HasOne(s => s.address)
                 .WithMany()
-                .HasForeignKey(t => t.subject_id);
+                .HasForeignKey(s => s.address_id);
+            #endregion
 
+            #region Teacher Relationships
+            // teachers-address: multi-to-one
+            builder.Entity<Teacher>()
+                .HasOne(t => t.address)
+                .WithMany()
+                .HasForeignKey(t => t.address_id);
+
+            builder.Entity<Teacher>()
+                .HasMany(t => t.students)
+                .WithMany(s => s.teachers)
+                .UsingEntity<StudentTeacher>(
+                j => j.HasOne(pt => pt.student)
+                .WithMany().HasForeignKey(pt => pt.student_id),
+                j => j.HasOne(pt => pt.teacher)
+                .WithMany().HasForeignKey(pt => pt.teacher_id),
+                j => j.HasKey(t => new { t.teacher_id, t.student_id }));
+            #endregion
+
+            #region Department Relationships
+            // department-grades: one-to-multi
             builder.Entity<Department>()
                 .HasMany(d => d.grades)
-                .WithOne(g => g.depart).HasForeignKey(g => g.depart_id);
+                .WithOne().HasForeignKey(g => g.depart_id);
 
+            // department-teachers: one-to-multi
             builder.Entity<Department>()
                 .HasMany(d => d.teachers)
-                .WithOne(t => t.depart).HasForeignKey(t => t.depart_id);
+                .WithOne().HasForeignKey(t => t.depart_id);
 
+            // department-subjects: one-to-multi
             builder.Entity<Department>()
                 .HasMany(d => d.subjects)
-                .WithOne(s => s.depart).HasForeignKey(s => s.depart_id);
+                .WithOne().HasForeignKey(s => s.depart_id);
 
+            // departments-addresses: multi-to-multi
+            builder.Entity<Department>()
+                .HasMany(d => d.addresses)
+                .WithMany(a => a.departs)
+                .UsingEntity<Depart_Address>(
+                j => j.HasOne(pt => pt.address)
+                .WithMany().HasForeignKey(pt => pt.address_id),
+                j => j.HasOne(pt => pt.depart)
+                .WithMany().HasForeignKey(pt => pt.depart_id),
+                j => j.HasKey(t => new { t.depart_id, t.address_id }));
+            #endregion
+
+            #region Grade Relationships
+            // grade-students: one-to-multi
             builder.Entity<Grade>()
                 .HasMany(g => g.students)
-                .WithOne(s => s.grade).HasForeignKey(s => s.grade_id);
+                .WithOne().HasForeignKey(s => s.grade_id);
+            #endregion
 
+            #region Subject Relationships
+            // subjects-students: multi-to-multi
+            builder.Entity<Subject>()
+                .HasMany(s => s.students)
+                .WithMany(stu => stu.subjects)
+                .UsingEntity<StudentSubject>(
+                j => j.HasOne(pt => pt.student)
+                .WithMany()
+                .HasForeignKey(pt => pt.student_id),
+                j => j.HasOne(pt => pt.subject)
+                .WithMany()
+                .HasForeignKey(pt => pt.subject_id),
+                j => j.HasKey(t => new { t.subject_id, t.student_id }));
 
+            builder.Entity<Subject>()
+                .HasMany(s => s.teachers)
+                .WithOne().HasForeignKey(t => t.subject_id);
+            #endregion
         }
     }
 }
